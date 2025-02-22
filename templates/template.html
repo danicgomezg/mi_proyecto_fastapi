@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráficos Interactivos</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Filtros de Datos</h1>
+    
+    <form id="filter-form">
+        {% for col, options in filters.items() %}
+        <label for="{{ col }}">{{ col }}:</label>
+        <select name="{{ col }}" id="{{ col }}">
+            <option value="Todos">Todos</option>
+            {% for option in options %}
+            <option value="{{ option }}">{{ option }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        {% endfor %}
+
+        <label for="fecha_inicio">Fecha Inicio:</label>
+        <input type="date" id="fecha_inicio" name="fecha_inicio">
+        
+        <label for="fecha_fin">Fecha Fin:</label>
+        <input type="date" id="fecha_fin" name="fecha_fin">
+        
+        <button type="submit">Actualizar</button>
+    </form>
+
+    <h2>Serie de Tiempo</h2>
+    <div id="graph1"></div>
+
+    <h2>Excedente de Energía</h2>
+    <div id="graph2"></div>
+
+    <h2>Excedente por Recurso</h2>
+    <div id="graph3"></div>
+
+    <script>
+        document.getElementById("filter-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+            
+            let formData = new FormData(event.target);
+            let params = new URLSearchParams(formData).toString();
+
+            fetch(`/graficos?${params}`)
+                .then(response => response.json())
+                .then(data => {
+                    Plotly.newPlot('graph1', data.graph1.data, data.graph1.layout);
+                    Plotly.newPlot('graph2', data.graph2.data, data.graph2.layout);
+                    Plotly.newPlot('graph3', data.graph3.data, data.graph3.layout);
+                });
+        });
+    </script>
+</body>
+</html>
